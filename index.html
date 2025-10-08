@@ -82,6 +82,7 @@
     
     // --- O seu componente principal ---
     function GalpaoSketchGenerator() {
+      const [projectName, setProjectName] = useState('');
       const [comprimento, setComprimento] = useState('');
       const [largura, setLargura] = useState('');
       const [peDireito, setPeDireito] = useState('');
@@ -133,10 +134,14 @@
         const startY = (canvasHeight - rectHeight) / 2 + 40;
 
         const today = new Date().toLocaleDateString('pt-BR');
+        const titleText = projectName 
+            ? `${projectName} - ${today}`
+            : `Croqui Preliminar de Galpão - ${today}`;
+        
         ctx.fillStyle = '#1e293b';
         ctx.font = 'bold 20px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(`Croqui Preliminar de Galpão - ${today}`, canvasWidth / 2, 30);
+        ctx.fillText(titleText, canvasWidth / 2, 30);
 
         if (sentidoPerfilado === 'comprimento' || sentidoPerfilado === 'largura') {
             ctx.strokeStyle = '#94a3b8';
@@ -289,7 +294,10 @@
             if (!blob) return;
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
-            const filename = `croqui_galpao_${comprimento}x${largura}m_${new Date().toISOString().split('T')[0]}.png`;
+            const safeProjectName = projectName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            const filename = projectName
+              ? `croqui_${safeProjectName}_${comprimento}x${largura}m_${new Date().toISOString().split('T')[0]}.png`
+              : `croqui_galpao_${comprimento}x${largura}m_${new Date().toISOString().split('T')[0]}.png`;
             link.download = filename;
             link.href = url;
             document.body.appendChild(link);
@@ -301,7 +309,7 @@
 
       return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 p-4 sm:p-6 font-sans">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             {/* Header */}
             <header className="bg-white rounded-lg shadow-lg p-6 mb-6">
               <div className="flex items-center gap-3 mb-2">
@@ -314,10 +322,11 @@
                 Ferramenta para criação automática de esboços para a equipe de engenharia
               </p>
             </header>
-
-            <main className="grid md:grid-cols-2 gap-6">
-              {/* Formulário */}
-              <div className="bg-white rounded-lg shadow-lg p-6">
+            
+            {/* Alterado para um grid de 3 colunas em telas grandes (lg) */}
+            <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Formulário (ocupa 1 de 3 colunas) */}
+              <div className="bg-white rounded-lg shadow-lg p-6 lg:col-span-1">
                 <h2 className="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
                   <RulerIcon className="w-5 h-5 text-blue-600" />
                   Dados do Galpão
@@ -332,6 +341,18 @@
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Nome do Projeto
+                    </label>
+                    <input
+                      type="text"
+                      value={projectName}
+                      onChange={(e) => setProjectName(e.target.value)}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                      placeholder="Ex: Galpão Logístico"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
                       Comprimento (metros) *
                     </label>
                     <input
@@ -340,6 +361,7 @@
                       min="0"
                       value={comprimento}
                       onChange={handleInputChange(setComprimento)}
+                      onWheel={(e) => e.target.blur()}
                       className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                       placeholder="Ex: 50.00"
                     />
@@ -355,6 +377,7 @@
                       min="0"
                       value={largura}
                       onChange={handleInputChange(setLargura)}
+                      onWheel={(e) => e.target.blur()}
                       className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                       placeholder="Ex: 30.00"
                     />
@@ -370,6 +393,7 @@
                       min="0"
                       value={peDireito}
                       onChange={handleInputChange(setPeDireito)}
+                      onWheel={(e) => e.target.blur()}
                       className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                       placeholder="Ex: 10.00"
                     />
@@ -435,6 +459,7 @@
                             setNumPerfilados(e.target.value);
                             if (e.target.value) setDistanciaPerfilados('');
                           }}
+                          onWheel={(e) => e.target.blur()}
                           className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                           placeholder="Ex: 10"
                         />
@@ -457,6 +482,7 @@
                             setDistanciaPerfilados(e.target.value);
                             if (e.target.value) setNumPerfilados('');
                           }}
+                          onWheel={(e) => e.target.blur()}
                           className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                           placeholder="Ex: 2.50"
                         />
@@ -473,13 +499,13 @@
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
                   >
                     <FileTextIcon className="w-5 h-5" />
-                    Gerar esboço
+                    GERAR ESBOÇO
                   </button>
                 </div>
               </div>
 
-              {/* Visualização do Croqui */}
-              <aside className="bg-white rounded-lg shadow-lg p-6">
+              {/* Visualização do Croqui (ocupa 2 de 3 colunas) */}
+              <aside className="bg-white rounded-lg shadow-lg p-6 lg:col-span-2">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-semibold text-slate-800">
                     Pré-visualização
@@ -490,18 +516,16 @@
                       className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 shadow-md hover:shadow-lg flex items-center gap-2 text-sm"
                     >
                       <DownloadIcon className="w-4 h-4" />
-                      Baixar PNG
+                      Baixar imagem
                     </button>
                   )}
                 </div>
 
-                <div className="border-2 border-slate-200 rounded-lg overflow-hidden bg-slate-50">
+                <div className="border-2 border-slate-200 rounded-lg overflow-hidden bg-slate-50 flex items-center justify-center h-full min-h-[624px]">
                   {!sketchGenerated ? (
-                    <div className="flex items-center justify-center h-[600px] text-slate-400">
-                      <div className="text-center">
-                        <FileTextIcon className="w-16 h-16 mx-auto mb-3 opacity-50" />
-                        <p className="text-lg">Preencha os dados e clique em "Gerar Croqui"</p>
-                      </div>
+                    <div className="text-center text-slate-400">
+                      <FileTextIcon className="w-16 h-16 mx-auto mb-3 opacity-50" />
+                      <p className="text-lg">Preencha os dados e clique em "GERAR ESBOÇO"</p>
                     </div>
                   ) : null}
                   <canvas
