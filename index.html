@@ -1,0 +1,474 @@
+import React, { useState, useRef } from 'react';
+import { Download, FileText, Ruler, ArrowUpDown } from 'lucide-react';
+
+export default function GalpaoSketchGenerator() {
+  const [comprimento, setComprimento] = useState('');
+  const [largura, setLargura] = useState('');
+  const [peDireito, setPeDireito] = useState('');
+  const [sentidoPerfilado, setSentidoPerfilado] = useState('nao-informar');
+  const [numPerfilados, setNumPerfilados] = useState('');
+  const [distanciaPerfilados, setDistanciaPerfilados] = useState('');
+  const [sketchGenerated, setSketchGenerated] = useState(false);
+  const canvasRef = useRef(null);
+
+  const generateSketch = () => {
+    if (!comprimento || !largura || !peDireito) {
+      alert('Por favor, preencha todos os campos obrigatórios.');
+      return;
+    }
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    // Dimensões do canvas
+    const canvasWidth = 800;
+    const canvasHeight = 600;
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    // Limpar canvas
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+    // Valores numéricos
+    const comp = parseFloat(comprimento);
+    const larg = parseFloat(largura);
+    const pd = parseFloat(peDireito);
+
+    // Calcular escala para caber no canvas com margens
+    const margin = 120;
+    const availableWidth = canvasWidth - 2 * margin;
+    const availableHeight = canvasHeight - 2 * margin - 80; // 80 para título
+    const scale = Math.min(availableWidth / comp, availableHeight / larg);
+
+    // Dimensões do retângulo no canvas
+    const rectWidth = comp * scale;
+    const rectHeight = larg * scale;
+    
+    // Posição central
+    const startX = (canvasWidth - rectWidth) / 2;
+    const startY = (canvasHeight - rectHeight) / 2 + 40;
+
+    // Título
+    const today = new Date().toLocaleDateString('pt-BR');
+    ctx.fillStyle = '#1e293b';
+    ctx.font = 'bold 20px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(`Croqui Preliminar de Galpão - ${today}`, canvasWidth / 2, 30);
+
+    // Desenhar perfilado (se aplicável) - ANTES do retângulo
+    if (sentidoPerfilado === 'comprimento' || sentidoPerfilado === 'largura') {
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 0.5;
+      ctx.setLineDash([5, 5]);
+
+      let numLines = 8; // valor padrão
+      
+      // Se o usuário forneceu número de perfilados, usar esse valor
+      if (numPerfilados && parseInt(numPerfilados) > 0) {
+        numLines = parseInt(numPerfilados);
+      }
+      // Se forneceu distância, calcular número de linhas
+      else if (distanciaPerfilados && parseFloat(distanciaPerfilados) > 0) {
+        const dist = parseFloat(distanciaPerfilados);
+        if (sentidoPerfilado === 'comprimento') {
+          numLines = Math.floor(larg / dist) - 1;
+        } else {
+          numLines = Math.floor(comp / dist) - 1;
+        }
+        numLines = Math.max(1, numLines);
+      }
+      
+      if (sentidoPerfilado === 'comprimento') {
+        // Linhas verticais (paralelas ao comprimento)
+        const spacing = rectHeight / (numLines + 1);
+        for (let i = 1; i <= numLines; i++) {
+          const y = startY + spacing * i;
+          ctx.beginPath();
+          ctx.moveTo(startX, y);
+          ctx.lineTo(startX + rectWidth, y);
+          ctx.stroke();
+        }
+      } else {
+        // Linhas horizontais (paralelas à largura)
+        const spacing = rectWidth / (numLines + 1);
+        for (let i = 1; i <= numLines; i++) {
+          const x = startX + spacing * i;
+          ctx.beginPath();
+          ctx.moveTo(x, startY);
+          ctx.lineTo(x, startY + rectHeight);
+          ctx.stroke();
+        }
+      }
+      ctx.setLineDash([]);
+    }
+
+    // Desenhar retângulo do galpão
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(startX, startY, rectWidth, rectHeight);
+
+    // Configuração para cotas
+    ctx.strokeStyle = '#475569';
+    ctx.fillStyle = '#475569';
+    ctx.lineWidth = 1;
+    ctx.font = 'bold 14px Arial';
+
+    // Cota superior (Comprimento)
+    const cotaTopY = startY - 40;
+    ctx.beginPath();
+    ctx.moveTo(startX, cotaTopY);
+    ctx.lineTo(startX + rectWidth, cotaTopY);
+    ctx.stroke();
+    
+    // Setas da cota superior
+    ctx.beginPath();
+    ctx.moveTo(startX, cotaTopY);
+    ctx.lineTo(startX + 10, cotaTopY - 5);
+    ctx.lineTo(startX + 10, cotaTopY + 5);
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.beginPath();
+    ctx.moveTo(startX + rectWidth, cotaTopY);
+    ctx.lineTo(startX + rectWidth - 10, cotaTopY - 5);
+    ctx.lineTo(startX + rectWidth - 10, cotaTopY + 5);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Linhas verticais de extensão
+    ctx.beginPath();
+    ctx.moveTo(startX, startY - 30);
+    ctx.lineTo(startX, cotaTopY);
+    ctx.moveTo(startX + rectWidth, startY - 30);
+    ctx.lineTo(startX + rectWidth, cotaTopY);
+    ctx.stroke();
+    
+    // Texto da cota superior
+    ctx.textAlign = 'center';
+    ctx.fillText(`${comp.toFixed(2)} m`, startX + rectWidth / 2, cotaTopY - 10);
+
+    // Cota lateral (Largura)
+    const cotaRightX = startX + rectWidth + 40;
+    ctx.beginPath();
+    ctx.moveTo(cotaRightX, startY);
+    ctx.lineTo(cotaRightX, startY + rectHeight);
+    ctx.stroke();
+    
+    // Setas da cota lateral
+    ctx.beginPath();
+    ctx.moveTo(cotaRightX, startY);
+    ctx.lineTo(cotaRightX - 5, startY + 10);
+    ctx.lineTo(cotaRightX + 5, startY + 10);
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.beginPath();
+    ctx.moveTo(cotaRightX, startY + rectHeight);
+    ctx.lineTo(cotaRightX - 5, startY + rectHeight - 10);
+    ctx.lineTo(cotaRightX + 5, startY + rectHeight - 10);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Linhas horizontais de extensão
+    ctx.beginPath();
+    ctx.moveTo(startX + rectWidth + 30, startY);
+    ctx.lineTo(cotaRightX, startY);
+    ctx.moveTo(startX + rectWidth + 30, startY + rectHeight);
+    ctx.lineTo(cotaRightX, startY + rectHeight);
+    ctx.stroke();
+    
+    // Texto da cota lateral (rotacionado)
+    ctx.save();
+    ctx.translate(cotaRightX + 20, startY + rectHeight / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'center';
+    ctx.fillText(`${larg.toFixed(2)} m`, 0, 0);
+    ctx.restore();
+
+    // Informação do Pé Direito
+    ctx.fillStyle = '#1e293b';
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'left';
+    const pdText = `Pé Direito: ${pd.toFixed(2)} m`;
+    ctx.fillText(pdText, startX + 15, startY + 25);
+
+    // Legenda do perfilado (se aplicável)
+    if (sentidoPerfilado !== 'nao-informar') {
+      ctx.font = '12px Arial';
+      ctx.fillStyle = '#64748b';
+      const legendText = sentidoPerfilado === 'comprimento' 
+        ? 'Perfilado paralelo ao comprimento' 
+        : 'Perfilado paralelo à largura';
+      ctx.fillText(legendText, startX + 15, startY + 45);
+      
+      // Adicionar informações de quantidade/distância se fornecidas
+      if (numPerfilados) {
+        ctx.fillText(`Quantidade: ${numPerfilados} perfilados`, startX + 15, startY + 60);
+      } else if (distanciaPerfilados) {
+        ctx.fillText(`Distância entre perfilados: ${distanciaPerfilados} m`, startX + 15, startY + 60);
+      }
+    }
+
+    // Rodapé com informações técnicas
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Documento preliminar para análise de engenharia', canvasWidth / 2, canvasHeight - 20);
+
+    setSketchGenerated(true);
+  };
+
+  const downloadSketch = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const filename = `croqui_galpao_${comprimento}x${largura}m_${new Date().toISOString().split('T')[0]}.png`;
+      link.download = filename;
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 'image/png');
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 p-6">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div className="flex items-center gap-3 mb-2">
+            <FileText className="w-8 h-8 text-blue-600" />
+            <h1 className="text-3xl font-bold text-slate-800">
+              Gerador de Croquis de Galpões
+            </h1>
+          </div>
+          <p className="text-slate-600">
+            Ferramenta para criação automática de croquis preliminares para a equipe de engenharia
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Formulário */}
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h2 className="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
+              <Ruler className="w-5 h-5 text-blue-600" />
+              Dados do Galpão
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Comprimento (metros) *
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={comprimento}
+                  onChange={(e) => setComprimento(e.target.value)}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  placeholder="Ex: 50.00"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Largura (metros) *
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={largura}
+                  onChange={(e) => setLargura(e.target.value)}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  placeholder="Ex: 30.00"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Pé Direito (metros) *
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={peDireito}
+                  onChange={(e) => setPeDireito(e.target.value)}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  placeholder="Ex: 10.00"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-3 flex items-center gap-2">
+                  <ArrowUpDown className="w-4 h-4" />
+                  Sentido do Perfilado (Terças)
+                </label>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                    <input
+                      type="radio"
+                      name="perfilado"
+                      value="comprimento"
+                      checked={sentidoPerfilado === 'comprimento'}
+                      onChange={(e) => setSentidoPerfilado(e.target.value)}
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <span className="text-sm text-slate-700">Paralelo ao Comprimento</span>
+                  </label>
+                  <label className="flex items-center gap-2 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                    <input
+                      type="radio"
+                      name="perfilado"
+                      value="largura"
+                      checked={sentidoPerfilado === 'largura'}
+                      onChange={(e) => setSentidoPerfilado(e.target.value)}
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <span className="text-sm text-slate-700">Paralelo à Largura</span>
+                  </label>
+                  <label className="flex items-center gap-2 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                    <input
+                      type="radio"
+                      name="perfilado"
+                      value="nao-informar"
+                      checked={sentidoPerfilado === 'nao-informar'}
+                      onChange={(e) => setSentidoPerfilado(e.target.value)}
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <span className="text-sm text-slate-700">Não Informar</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Campos condicionais para perfilado */}
+              {sentidoPerfilado !== 'nao-informar' && (
+                <div className="bg-blue-50 p-4 rounded-lg space-y-4">
+                  <p className="text-sm font-medium text-slate-700 mb-2">
+                    Informações adicionais do perfilado (opcional):
+                  </p>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Número de Perfilados
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={numPerfilados}
+                      onChange={(e) => {
+                        setNumPerfilados(e.target.value);
+                        if (e.target.value) setDistanciaPerfilados('');
+                      }}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      placeholder="Ex: 10"
+                    />
+                  </div>
+
+                  <div className="text-center text-sm text-slate-500 font-medium">
+                    OU
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Distância entre Perfilados (metros)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={distanciaPerfilados}
+                      onChange={(e) => {
+                        setDistanciaPerfilados(e.target.value);
+                        if (e.target.value) setNumPerfilados('');
+                      }}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      placeholder="Ex: 2.50"
+                    />
+                  </div>
+
+                  <p className="text-xs text-slate-600 italic">
+                    * Preencha apenas um dos campos acima. Se nenhum for preenchido, será usado um espaçamento padrão.
+                  </p>
+                </div>
+              )}
+
+              <button
+                onClick={generateSketch}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+              >
+                <FileText className="w-5 h-5" />
+                Gerar Croqui
+              </button>
+            </div>
+          </div>
+
+          {/* Visualização do Croqui */}
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-slate-800">
+                Pré-visualização
+              </h2>
+              {sketchGenerated && (
+                <button
+                  onClick={downloadSketch}
+                  className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors shadow-md hover:shadow-lg flex items-center gap-2 text-sm"
+                >
+                  <Download className="w-4 h-4" />
+                  Baixar PNG
+                </button>
+              )}
+            </div>
+
+            <div className="border-2 border-slate-200 rounded-lg overflow-hidden bg-slate-50">
+              {!sketchGenerated ? (
+                <div className="flex items-center justify-center h-[600px] text-slate-400">
+                  <div className="text-center">
+                    <FileText className="w-16 h-16 mx-auto mb-3 opacity-50" />
+                    <p className="text-lg">Preencha os dados e clique em "Gerar Croqui"</p>
+                  </div>
+                </div>
+              ) : null}
+              <canvas
+                ref={canvasRef}
+                className="w-full h-auto"
+                style={{ display: sketchGenerated ? 'block' : 'none' }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Informações Técnicas */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mt-6">
+          <h3 className="text-lg font-semibold text-slate-800 mb-3">
+            📋 Informações para a Engenharia
+          </h3>
+          <div className="grid md:grid-cols-3 gap-4 text-sm text-slate-600">
+            <div>
+              <strong className="text-slate-800">Dimensões:</strong>
+              <p>Medidas externas do galpão formando a área total do piso.</p>
+            </div>
+            <div>
+              <strong className="text-slate-800">Pé Direito:</strong>
+              <p>Altura livre interna do piso até o obstáculo mais baixo.</p>
+            </div>
+            <div>
+              <strong className="text-slate-800">Perfilado:</strong>
+              <p>Orientação das terças que sustentam o telhado.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
