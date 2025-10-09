@@ -46,6 +46,7 @@
     // FERRAMENTA 1: GERADOR DE CROQUIS DE GALPÕES
     // ========================================================================
     function GalpaoSketchGenerator() {
+      // (O código da ferramenta de galpões permanece o mesmo de antes)
       const [projectName, setProjectName] = useState('');
       const [comprimento, setComprimento] = useState('');
       const [largura, setLargura] = useState('');
@@ -100,7 +101,7 @@
         const today = new Date().toLocaleDateString('pt-BR');
         const titleText = projectName 
             ? `${projectName} - ${today}`
-            : `Croqui Preliminar de Galpão - ${today}`;
+            : `Esboço Preliminar de Galpão - ${today}`;
         
         ctx.fillStyle = '#1e293b';
         ctx.font = 'bold 20px Arial';
@@ -457,7 +458,7 @@
                 ctx.fillRect(0, 0, canvasWidth, canvasHeight);
                 
                 const today = new Date().toLocaleDateString('pt-BR');
-                const titleText = config.projectName ? `${config.projectName} - ${today}` : `Croqui de Iluminação - ${today}`;
+                const titleText = config.projectName ? `${config.projectName} - ${today}` : `Esboço de Iluminação - ${today}`;
                 ctx.fillStyle = '#1e293b';
                 ctx.font = 'bold 18px Arial';
                 ctx.textAlign = 'center';
@@ -520,7 +521,8 @@
                 };
                 
                 // Cota do campo
-                drawCota(startX, startY - 40, startX + fieldWidth, startY - 40, `${larg.toFixed(2)} m`);
+                const largText = `${(parseFloat(larg) || 0).toFixed(2)} m`;
+                drawCota(startX, startY - 40, startX + fieldWidth, startY - 40, largText);
                 drawCota(startX - 50, startY, startX - 50, startY + fieldHeight, `${comp.toFixed(2)} m`, 'center', -10);
 
 
@@ -587,36 +589,88 @@
                     drawCota(Math.min(poleLineX, fieldLineX), hCotaY, Math.max(poleLineX, fieldLineX), hCotaY, `${recLat.toFixed(2)} m`);
                 };
 
+                const wrapText = (ctx, text, x, y, maxWidth, lineHeight) => {
+                    const words = text.split(' ');
+                    let line = '';
+                    let currentY = y;
+
+                    for (let n = 0; n < words.length; n++) {
+                        const testLine = line + words[n] + ' ';
+                        const metrics = ctx.measureText(testLine);
+                        const testWidth = metrics.width;
+                        if (testWidth > maxWidth && n > 0) {
+                            ctx.fillText(line, x, currentY);
+                            line = words[n] + ' ';
+                            currentY += lineHeight;
+                        } else {
+                            line = testLine;
+                        }
+                    }
+                    ctx.fillText(line, x, currentY);
+                    return currentY + lineHeight;
+                };
+
                 const drawDatasheet = () => {
-                    let boxY = 40;
+                    const boxX = 10;
+                    let currentY = 40;
+                    const boxWidth = 220;
+                    const lineHeight = 15;
+                    const initialY = currentY;
+
+                    // Apenas calcula a altura final
+                    let finalY = initialY + 40;
+                     if (config.layoutType === 'posteCobertura') finalY += lineHeight;
+                    if (config.observacoes) {
+                        const words = config.observacoes.split(' ');
+                        let line = '';
+                        finalY += 20; // Espaço para o título "Observações"
+                        for(let n=0; n < words.length; n++){
+                            let testLine = line + words[n] + ' ';
+                            let metrics = ctx.measureText(testLine);
+                            if(metrics.width > boxWidth - 20 && n > 0){
+                                finalY += lineHeight;
+                                line = words[n] + ' ';
+                            } else {
+                                line = testLine;
+                            }
+                        }
+                    }
+
+                    // Desenha a caixa primeiro
+                    ctx.globalCompositeOperation = 'destination-over';
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                    ctx.strokeStyle = '#94a3b8';
+                    ctx.lineWidth = 1;
+                    ctx.fillRect(boxX, initialY - 15, boxWidth, finalY - initialY);
+                    ctx.strokeRect(boxX, initialY - 15, boxWidth, finalY - initialY);
+                    ctx.globalCompositeOperation = 'source-over';
+
+
+                    // Agora desenha o texto
                     ctx.fillStyle = '#1e293b';
                     ctx.font = 'bold 12px Arial';
                     ctx.textAlign = 'left';
-                    ctx.fillText('Informações do Projeto:', 10, boxY);
+                    ctx.fillText('Informações do Projeto:', boxX + 10, currentY);
                     
+                    currentY += 20;
                     ctx.font = '11px Arial';
-                    boxY += 20;
-                    ctx.fillText(`- Nível de Iluminância: ${config.lux} Lux`, 15, boxY);
+                    ctx.fillText(`- Nível de Iluminância: ${config.lux} Lux`, boxX + 15, currentY);
                     
                     if (config.layoutType === 'posteCobertura') {
-                         boxY += 15;
+                         currentY += lineHeight;
                          const cob = config.isCustom ? config.custom.cobertura : config.padrao.cobertura;
-                         ctx.fillText(`- Cobertura: ${cob.largura}m (L) x ${cob.comprimento}m (C) x ${cob.altura}m (A)`, 15, boxY);
+                         ctx.fillText(`- Cobertura: ${cob.largura}m (L) x ${cob.comprimento}m (C) x ${cob.altura}m (A)`, boxX + 15, currentY);
                     }
                     
                     if(config.observacoes) {
-                        boxY += 20;
+                        currentY += 20;
                         ctx.font = 'bold 11px Arial';
-                        ctx.fillText('Observações:', 15, boxY);
+                        ctx.fillText('Observações:', boxX + 15, currentY);
                         ctx.font = '11px Arial';
-                        config.observacoes.split('\\n').forEach(line => {
-                            boxY += 15;
-                            ctx.fillText(line, 20, boxY);
-                        });
+                        wrapText(ctx, config.observacoes, boxX + 15, currentY + lineHeight, boxWidth - 30, lineHeight);
                     }
                 };
-
-
+                
                 if (config.layoutType === 'duploPoste') {
                     const leftData = drawPoleSide(data.ladoEsquerdo, 'left');
                     const rightData = drawPoleSide(data.ladoDireito, 'right');
@@ -791,7 +845,7 @@
                       )}
                     </div>
                      <div className="border-2 border-slate-200 rounded-lg overflow-hidden bg-slate-100 flex items-center justify-center">
-                        {!sketchGenerated && <div className="text-slate-400 text-center py-20"><LightbulbIcon className="w-12 h-12 mx-auto mb-2 opacity-50"/><p>Preencha os dados e gere o croqui.</p></div>}
+                        {!sketchGenerated && <div className="text-slate-400 text-center py-20"><LightbulbIcon className="w-12 h-12 mx-auto mb-2 opacity-50"/><p>Preencha os dados e gere o esboço.</p></div>}
                         <canvas ref={canvasRef} width="800" height="600" className="w-full h-auto" style={{ display: sketchGenerated ? 'block' : 'none' }}/>
                     </div>
                  </aside>
@@ -859,5 +913,4 @@
 
 </body>
 </html>
-
 
