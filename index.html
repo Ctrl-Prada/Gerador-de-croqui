@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GalpON</title>
+  <title>DesenhON</title>
   
   <!-- 1. Carrega o Tailwind CSS para estilização -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -14,73 +14,37 @@
   
   <!-- 3. Carrega o Babel para traduzir JSX no navegador -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    /* Estilos para a aba ativa */
+    .active-tab {
+      border-color: #2563eb;
+      color: #2563eb;
+      font-weight: 600;
+      background-color: #eff6ff;
+    }
+  </style>
 </head>
 <body>
   
-  <!-- 4. Onde a aplicação React será renderizada -->
   <div id="root"></div>
 
-  <!-- 5. Nosso código React (com o tipo "text/babel") -->
   <script type="text/babel">
     const { useState, useRef, useEffect } = React;
 
-    // --- Componentes de Ícones (Substituindo lucide-react) ---
+    // --- Componentes de Ícones ---
     const Icon = ({ className, children }) => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={className}
-      >
-        {children}
-      </svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>
     );
+    const DownloadIcon = ({ className }) => (<Icon className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></Icon>);
+    const FileTextIcon = ({ className }) => (<Icon className={className}><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /><path d="M16 13H8" /><path d="M16 17H8" /><path d="M10 9H8" /></Icon>);
+    const RulerIcon = ({ className }) => (<Icon className={className}><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L3 8.4a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0L18 11.6a2.4 2.4 0 0 0 3.3.1z" /><path d="m17.6 7.8 1.6 1.6" /><path d="m14 11.2 1.5 1.5" /><path d="m11 14.1 1.5 1.5" /><path d="m8.1 17.1 1.5 1.5" /><path d="m21.3 15.3-.1-2.9-2.9-.1" /></Icon>);
+    const ArrowUpDownIcon = ({ className }) => (<Icon className={className}><path d="m21 16-4 4-4-4" /><path d="M17 20V4" /><path d="m3 8 4-4 4 4" /><path d="M7 4v16" /></Icon>);
+    const BuildingIcon = ({ className }) => (<Icon className={className}><rect width="16" height="20" x="4" y="2" rx="2" /><path d="M9 22v-4h6v4" /><path d="M8 6h.01" /><path d="M16 6h.01" /><path d="M12 6h.01" /><path d="M12 10h.01" /><path d="M12 14h.01" /><path d="M16 10h.01" /><path d="M16 14h.01" /><path d="M8 10h.01" /><path d="M8 14h.01" /></Icon>);
+    const LightbulbIcon = ({ className }) => (<Icon className={className}><path d="M15 14c.2-1 .7-1.7 1.5-2.5C17.7 10.2 18 9 18 7c0-2.2-1.8-4-4-4S10 4.8 10 7c0 2 .3 3.2 1.5 4.5.8.8 1.3 1.5 1.5 2.5" /><path d="M9 18h6" /><path d="M10 22h4" /></Icon>);
 
-    const DownloadIcon = ({ className }) => (
-      <Icon className={className}>
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-        <polyline points="7 10 12 15 17 10" />
-        <line x1="12" y1="15" x2="12" y2="3" />
-      </Icon>
-    );
-
-    const FileTextIcon = ({ className }) => (
-      <Icon className={className}>
-        <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
-        <path d="M14 2v4a2 2 0 0 0 2 2h4" />
-        <path d="M16 13H8" />
-        <path d="M16 17H8" />
-        <path d="M10 9H8" />
-      </Icon>
-    );
-
-    const RulerIcon = ({ className }) => (
-      <Icon className={className}>
-        <path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L3 8.4a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0L18 11.6a2.4 2.4 0 0 0 3.3.1z" />
-        <path d="m17.6 7.8 1.6 1.6" />
-        <path d="m14 11.2 1.5 1.5" />
-        <path d="m11 14.1 1.5 1.5" />
-        <path d="m8.1 17.1 1.5 1.5" />
-        <path d="m21.3 15.3-.1-2.9-2.9-.1" />
-      </Icon>
-    );
-
-    const ArrowUpDownIcon = ({ className }) => (
-      <Icon className={className}>
-        <path d="m21 16-4 4-4-4" />
-        <path d="M17 20V4" />
-        <path d="m3 8 4-4 4 4" />
-        <path d="M7 4v16" />
-      </Icon>
-    );
-    
-    // --- O seu componente principal ---
+    // ========================================================================
+    // FERRAMENTA 1: GERADOR DE CROQUIS DE GALPÕES
+    // ========================================================================
     function GalpaoSketchGenerator() {
       const [projectName, setProjectName] = useState('');
       const [comprimento, setComprimento] = useState('');
@@ -308,243 +272,589 @@
       };
 
       return (
+        <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Formulário */}
+          <div className="bg-white rounded-lg shadow-lg p-6 lg:col-span-1">
+            <h2 className="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
+              <RulerIcon className="w-5 h-5 text-blue-600" />
+              Dados do Galpão
+            </h2>
+            
+            {error && (<div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 mb-4 rounded-md" role="alert"><p>{error}</p></div>)}
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Nome do Projeto</label>
+                <input type="text" value={projectName} onChange={(e) => setProjectName(e.target.value)} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Ex: Galpão Logístico" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Comprimento (metros) *</label>
+                <input type="number" step="0.01" min="0" value={comprimento} onChange={handleInputChange(setComprimento)} onWheel={(e) => e.target.blur()} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Ex: 50.00" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Largura (metros) *</label>
+                <input type="number" step="0.01" min="0" value={largura} onChange={handleInputChange(setLargura)} onWheel={(e) => e.target.blur()} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Ex: 30.00" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Pé Direito (metros) *</label>
+                <input type="number" step="0.01" min="0" value={peDireito} onChange={handleInputChange(setPeDireito)} onWheel={(e) => e.target.blur()} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Ex: 10.00" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-3 flex items-center gap-2"><ArrowUpDownIcon className="w-4 h-4" />Sentido do Perfilado (Terças)</label>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                    <input type="radio" name="perfilado" value="comprimento" checked={sentidoPerfilado === 'comprimento'} onChange={(e) => setSentidoPerfilado(e.target.value)} className="w-4 h-4 text-blue-600 focus:ring-blue-500" />
+                    <span className="text-sm text-slate-700">Paralelo ao Comprimento</span>
+                  </label>
+                  <label className="flex items-center gap-2 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                    <input type="radio" name="perfilado" value="largura" checked={sentidoPerfilado === 'largura'} onChange={(e) => setSentidoPerfilado(e.target.value)} className="w-4 h-4 text-blue-600 focus:ring-blue-500" />
+                    <span className="text-sm text-slate-700">Paralelo à Largura</span>
+                  </label>
+                  <label className="flex items-center gap-2 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                    <input type="radio" name="perfilado" value="nao-informar" checked={sentidoPerfilado === 'nao-informar'} onChange={(e) => setSentidoPerfilado(e.target.value)} className="w-4 h-4 text-blue-600 focus:ring-blue-500" />
+                    <span className="text-sm text-slate-700">Não Informar</span>
+                  </label>
+                </div>
+              </div>
+              {sentidoPerfilado !== 'nao-informar' && (
+                <div className="bg-blue-50 p-4 rounded-lg space-y-4 border border-blue-200">
+                  <p className="text-sm font-medium text-slate-700">Informações adicionais do perfilado (opcional):</p>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Número de Perfilados</label>
+                    <input type="number" min="1" value={numPerfilados} onChange={(e) => {setNumPerfilados(e.target.value); if (e.target.value) setDistanciaPerfilados('');}} onWheel={(e) => e.target.blur()} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Ex: 10" />
+                  </div>
+                  <div className="text-center text-sm text-slate-500 font-medium">OU</div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Distância entre Perfilados (metros)</label>
+                    <input type="number" step="0.01" min="0" value={distanciaPerfilados} onChange={(e) => {setDistanciaPerfilados(e.target.value); if (e.target.value) setNumPerfilados('');}} onWheel={(e) => e.target.blur()} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Ex: 2.50" />
+                  </div>
+                  <p className="text-xs text-slate-600 italic">* Preencha apenas um dos campos acima.</p>
+                </div>
+              )}
+              <button onClick={generateSketch} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                <FileTextIcon className="w-5 h-5" />GERAR ESBOÇO
+              </button>
+            </div>
+          </div>
+          {/* Visualização do Croqui */}
+          <aside className="bg-white rounded-lg shadow-lg p-6 lg:col-span-2">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-slate-800">Pré-visualização</h2>
+              {sketchGenerated && (
+                <button onClick={downloadSketch} className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 shadow-md hover:shadow-lg flex items-center gap-2 text-sm">
+                  <DownloadIcon className="w-4 h-4" />Baixar imagem
+                </button>
+              )}
+            </div>
+            <div className="border-2 border-slate-200 rounded-lg overflow-hidden bg-slate-50 flex items-center justify-center h-full min-h-[624px]">
+              {!sketchGenerated ? (
+                <div className="text-center text-slate-400">
+                  <FileTextIcon className="w-16 h-16 mx-auto mb-3 opacity-50" />
+                  <p className="text-lg">Preencha os dados e clique em "GERAR ESBOÇO"</p>
+                </div>
+              ) : null}
+              <canvas ref={canvasRef} className="w-full h-auto" style={{ display: sketchGenerated ? 'block' : 'none' }} />
+            </div>
+          </aside>
+        </main>
+      );
+    }
+
+    // ========================================================================
+    // FERRAMENTA 2: GERADOR DE CROQUIS DE ILUMINAÇÃO ESPORTIVA - MODELO FORMULÁRIO
+    // ========================================================================
+    function IluminacaoSketchGenerator() {
+        const [config, setConfig] = useState({
+            projectName: '',
+            lux: '500',
+            observacoes: '',
+            comprimento: '100',
+            largura: '60',
+            layoutType: 'duploPoste', // 'duploPoste', 'posteCobertura'
+            isCustom: false,
+            // Config Padrão
+            padrao: {
+                numPostes: '6', // TOTAL
+                recuoFundo: '10',
+                recuoLateral: '5',
+                cobertura: { largura: '8', altura: '12', comprimento: '100', recuoFundo: '0', recuoLateral: '2' }
+            },
+            // Config Personalizada
+            custom: {
+                ladoEsquerdo: { numPostes: '3', recuoFundo: '10', recuoLateral: '5', distancias: ['40', '40'] },
+                ladoDireito: { numPostes: '3', recuoFundo: '10', recuoLateral: '5', distancias: ['40', '40'] },
+                cobertura: { largura: '8', altura: '12', comprimento: '100', recuoFundo: '0', recuoLateral: '2' }
+            }
+        });
+        
+        const [sketchGenerated, setSketchGenerated] = useState(false);
+        const canvasRef = useRef(null);
+
+        // Efeito para ajustar campos de distância dinamicamente
+        useEffect(() => {
+            if (!config.isCustom) return;
+
+            const updateLado = (lado) => {
+                const numPostes = parseFloat(lado.numPostes) || 0;
+                const numGaps = numPostes - 1;
+                
+                const newDistancias = [...lado.distancias];
+                while (newDistancias.length < numGaps) newDistancias.push('');
+                lado.distancias = newDistancias.slice(0, numGaps);
+                return lado;
+            };
+
+            setConfig(prev => ({
+                ...prev,
+                custom: {
+                    ...prev.custom,
+                    ladoEsquerdo: updateLado(JSON.parse(JSON.stringify(prev.custom.ladoEsquerdo))),
+                    ladoDireito: updateLado(JSON.parse(JSON.stringify(prev.custom.ladoDireito)))
+                }
+            }));
+
+        }, [config.custom.ladoEsquerdo.numPostes, config.custom.ladoDireito.numPostes, config.isCustom]);
+
+        const handleConfigChange = (path, value) => {
+            setConfig(prev => {
+                const keys = path.split('.');
+                const newConfig = { ...prev };
+                let current = newConfig;
+                for (let i = 0; i < keys.length - 1; i++) {
+                    current[keys[i]] = { ...current[keys[i]] };
+                    current = current[keys[i]];
+                }
+                current[keys[keys.length - 1]] = value;
+                return newConfig;
+            });
+        };
+
+        const handleDistanciaChange = (lado, index, value) => {
+            setConfig(prev => {
+                const newCustom = { ...prev.custom };
+                const newLado = { ...newCustom[lado] };
+                const newDistancias = [...newLado.distancias];
+                newDistancias[index] = value;
+                newLado.distancias = newDistancias;
+                newCustom[lado] = newLado;
+                return { ...prev, custom: newCustom };
+            });
+        };
+
+        const generateSketch = () => {
+            setSketchGenerated(false);
+            setTimeout(() => {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                if(!ctx) return;
+                
+                const canvasWidth = 800;
+                const canvasHeight = 600;
+                canvas.width = canvasWidth;
+                canvas.height = canvasHeight;
+                ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+                ctx.fillStyle = "#f8fafc";
+                ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+                
+                const today = new Date().toLocaleDateString('pt-BR');
+                const titleText = config.projectName ? `${config.projectName} - ${today}` : `Croqui de Iluminação - ${today}`;
+                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 18px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(titleText, canvasWidth / 2, 30);
+
+
+                const comp = parseFloat(config.comprimento);
+                const larg = parseFloat(config.largura);
+
+                const data = config.isCustom ? config.custom : {
+                    ladoEsquerdo: { ...config.padrao, numPostes: config.layoutType === 'posteCobertura' ? config.padrao.numPostes : config.padrao.numPostes / 2 },
+                    ladoDireito: { ...config.padrao, numPostes: config.padrao.numPostes / 2 },
+                    cobertura: config.padrao.cobertura
+                };
+                
+                const recuoLatEsq = config.layoutType === 'posteCobertura' ? parseFloat(data.cobertura.recuoLateral) : parseFloat(data.ladoEsquerdo.recuoLateral);
+                const recuoLatDir = parseFloat(data.ladoDireito.recuoLateral);
+
+                const margin = 120;
+                const scale = Math.min(
+                    (canvasWidth - 2 * margin) / (larg + recuoLatEsq + recuoLatDir),
+                    (canvasHeight - 2 * margin) / comp
+                );
+
+                const fieldWidth = larg * scale;
+                const fieldHeight = comp * scale;
+                const startX = (canvasWidth - fieldWidth + (recuoLatDir - recuoLatEsq) * scale) / 2;
+                const startY = (canvasHeight - fieldHeight) / 2;
+
+                // Desenha Campo
+                ctx.strokeStyle = '#0284c7';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(startX, startY, fieldWidth, fieldHeight);
+                
+                // Helper para desenhar cotas
+                const drawCota = (x1, y1, x2, y2, text, alignment = 'center', offset = 10) => {
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.strokeStyle = '#475569';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#1e3a8a';
+                    ctx.font = 'bold 11px Arial';
+                    ctx.textAlign = alignment;
+                    ctx.textBaseline = 'middle';
+                    
+                    const isHorizontal = y1 === y2;
+                    if (isHorizontal) {
+                        ctx.fillText(text, (x1 + x2) / 2, y1 - offset);
+                    } else {
+                        ctx.save();
+                        ctx.translate(x1 + offset, (y1 + y2) / 2);
+                        ctx.rotate(-Math.PI / 2);
+                        ctx.textAlign = 'center';
+                        ctx.fillText(text, 0, 0);
+                        ctx.restore();
+                    }
+                };
+                
+                // Cota do campo
+                drawCota(startX, startY - 40, startX + fieldWidth, startY - 40, `${larg.toFixed(2)} m`);
+                drawCota(startX - 50, startY, startX - 50, startY + fieldHeight, `${comp.toFixed(2)} m`, 'center', -10);
+
+
+                const drawPoleSide = (sideData, side) => {
+                    const polePositions = [];
+                    const recLat = parseFloat(sideData.recuoLateral);
+                    const xPos = side === 'left' ? startX - recLat * scale : startX + fieldWidth + recLat * scale;
+                    const numPostes = parseFloat(sideData.numPostes);
+                    const recFundo = parseFloat(sideData.recuoFundo);
+
+                    let distancias;
+                    if(config.isCustom) {
+                        distancias = sideData.distancias.map(d => parseFloat(d) || 0);
+                    } else {
+                        const numGaps = numPostes - 1;
+                        const autoDist = numGaps > 0 ? (comp - 2 * recFundo) / numGaps : 0;
+                        distancias = Array(numGaps).fill(autoDist);
+                    }
+                    
+                    let currentY = startY + recFundo * scale;
+                    for (let i = 0; i < numPostes; i++) {
+                        polePositions.push(currentY);
+                        ctx.fillStyle = '#be123c';
+                        ctx.beginPath();
+                        ctx.arc(xPos, currentY, 4, 0, 2 * Math.PI);
+                        ctx.fill();
+                        if (i < distancias.length) {
+                            currentY += distancias[i] * scale;
+                        }
+                    }
+                    return { polePositions, distancias, recFundo, recLat };
+                };
+                
+                const drawCanopySide = () => {
+                    const cobData = config.isCustom ? config.custom.cobertura : config.padrao.cobertura;
+                    const recLat = parseFloat(cobData.recuoLateral) * scale;
+                    const recFundo = parseFloat(cobData.recuoFundo) * scale;
+                    const cobLargura = parseFloat(cobData.largura) * scale;
+
+                    ctx.fillStyle = 'rgba(100, 116, 139, 0.3)';
+                    ctx.strokeStyle = '#64748b';
+                    ctx.lineWidth = 1;
+                    ctx.fillRect(startX - recLat - cobLargura, startY + recFundo, cobLargura, fieldHeight - 2 * recFundo);
+                    ctx.strokeRect(startX - recLat - cobLargura, startY + recFundo, cobLargura, fieldHeight - 2 * recFundo);
+                };
+                
+                const drawPoleCotas = (poleData, side) => {
+                    const { polePositions, distancias, recFundo, recLat } = poleData;
+                    
+                    const vCotaX = side === 'left' ? startX - 75 : startX + fieldWidth + 75;
+                    const vTextAlign = side === 'left' ? 'right' : 'left';
+                    const vTextOffset = side === 'left' ? -5 : 5;
+
+                    drawCota(vCotaX, startY, vCotaX, polePositions[0], `${recFundo.toFixed(2)} m`, vTextAlign, vTextOffset);
+                    
+                    for (let i = 0; i < distancias.length; i++) {
+                       drawCota(vCotaX, polePositions[i], vCotaX, polePositions[i+1], `${(distancias[i] || 0).toFixed(2)} m`, vTextAlign, vTextOffset);
+                    }
+                    
+                    const hCotaY = startY - 65;
+                    const poleLineX = side === 'left' ? startX - recLat * scale : startX + fieldWidth + recLat * scale;
+                    const fieldLineX = side === 'left' ? startX : startX + fieldWidth;
+                    
+                    drawCota(Math.min(poleLineX, fieldLineX), hCotaY, Math.max(poleLineX, fieldLineX), hCotaY, `${recLat.toFixed(2)} m`);
+                };
+
+                const drawDatasheet = () => {
+                    let boxY = 40;
+                    ctx.fillStyle = '#1e293b';
+                    ctx.font = 'bold 12px Arial';
+                    ctx.textAlign = 'left';
+                    ctx.fillText('Informações do Projeto:', 10, boxY);
+                    
+                    ctx.font = '11px Arial';
+                    boxY += 20;
+                    ctx.fillText(`- Nível de Iluminância: ${config.lux} Lux`, 15, boxY);
+                    
+                    if (config.layoutType === 'posteCobertura') {
+                         boxY += 15;
+                         const cob = config.isCustom ? config.custom.cobertura : config.padrao.cobertura;
+                         ctx.fillText(`- Cobertura: ${cob.largura}m (L) x ${cob.comprimento}m (C) x ${cob.altura}m (A)`, 15, boxY);
+                    }
+                    
+                    if(config.observacoes) {
+                        boxY += 20;
+                        ctx.font = 'bold 11px Arial';
+                        ctx.fillText('Observações:', 15, boxY);
+                        ctx.font = '11px Arial';
+                        config.observacoes.split('\\n').forEach(line => {
+                            boxY += 15;
+                            ctx.fillText(line, 20, boxY);
+                        });
+                    }
+                };
+
+
+                if (config.layoutType === 'duploPoste') {
+                    const leftData = drawPoleSide(data.ladoEsquerdo, 'left');
+                    const rightData = drawPoleSide(data.ladoDireito, 'right');
+                    drawPoleCotas(leftData, 'left');
+                    drawPoleCotas(rightData, 'right');
+                } else { // posteCobertura
+                    drawCanopySide();
+                    const rightData = drawPoleSide(config.isCustom ? data.ladoDireito : data.ladoEsquerdo, 'right');
+                    drawPoleCotas(rightData, 'right');
+                }
+
+                drawDatasheet();
+                setSketchGenerated(true);
+            }, 100);
+        };
+        
+        const downloadSketch = () => {
+          const canvas = canvasRef.current;
+          if (!canvas) return;
+          
+          canvas.toBlob((blob) => {
+              if (!blob) return;
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              const safeProjectName = (config.projectName || 'projeto_iluminacao').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+              const filename = `${safeProjectName}_${config.comprimento}x${config.largura}m_${new Date().toISOString().split('T')[0]}.png`;
+              link.download = filename;
+              link.href = url;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+          }, 'image/png');
+        };
+
+        const DynamicPosteFields = ({ side, data, path }) => (
+            <div className="space-y-3 p-3 bg-white rounded border">
+                <h4 className="font-semibold text-slate-800 text-sm">{side === 'ladoEsquerdo' ? 'Lado Esquerdo' : 'Lado Direito'}</h4>
+                <div className="grid grid-cols-2 gap-4">
+                     <div>
+                        <label className="text-xs font-medium">Nº Postes (neste lado)</label>
+                        <input type="number" min="2" value={data.numPostes} onWheel={(e) => e.target.blur()} onChange={e => handleConfigChange(`${path}.numPostes`, e.target.value)} className="w-full text-sm p-2 border rounded mt-1" />
+                     </div>
+                     <div>
+                        <label className="text-xs font-medium">Recuo Fundo (m)</label>
+                        <input type="number" value={data.recuoFundo} onWheel={(e) => e.target.blur()} onChange={e => handleConfigChange(`${path}.recuoFundo`, e.target.value)} className="w-full text-sm p-2 border rounded mt-1" />
+                     </div>
+                     <div className="col-span-2">
+                        <label className="text-xs font-medium">Recuo Lateral (m)</label>
+                        <input type="number" value={data.recuoLateral} onWheel={(e) => e.target.blur()} onChange={e => handleConfigChange(`${path}.recuoLateral`, e.target.value)} className="w-full text-sm p-2 border rounded mt-1" />
+                     </div>
+                </div>
+                {data.distancias.map((dist, index) => (
+                    <div key={index}>
+                        <label className="text-xs font-medium">Dist. entre {index+1}º e {index+2}º poste (m)</label>
+                        <input type="number" value={dist} onWheel={(e) => e.target.blur()} onChange={e => handleDistanciaChange(side, index, e.target.value)} className="w-full text-sm p-2 border rounded mt-1" />
+                    </div>
+                ))}
+            </div>
+        );
+        
+        const CoberturaFields = ({ data, path, title }) => (
+             <div className="p-3 bg-white rounded border space-y-3">
+                 <h4 className="font-semibold text-slate-800 text-sm">{title}</h4>
+                 <div className="grid grid-cols-2 gap-4">
+                     <div><label className="text-xs font-medium">Largura (m)</label><input type="number" onWheel={(e) => e.target.blur()} value={data.largura} onChange={e => handleConfigChange(`${path}.largura`, e.target.value)} className="w-full text-sm p-2 border rounded mt-1" /></div>
+                     <div><label className="text-xs font-medium">Comprimento (m)</label><input type="number" onWheel={(e) => e.target.blur()} value={data.comprimento} onChange={e => handleConfigChange(`${path}.comprimento`, e.target.value)} className="w-full text-sm p-2 border rounded mt-1" /></div>
+                     <div><label className="text-xs font-medium">Altura (m)</label><input type="number" onWheel={(e) => e.target.blur()} value={data.altura} onChange={e => handleConfigChange(`${path}.altura`, e.target.value)} className="w-full text-sm p-2 border rounded mt-1" /></div>
+                     <div><label className="text-xs font-medium">Recuo Fundo (m)</label><input type="number" onWheel={(e) => e.target.blur()} value={data.recuoFundo} onChange={e => handleConfigChange(`${path}.recuoFundo`, e.target.value)} className="w-full text-sm p-2 border rounded mt-1" /></div>
+                     <div className="col-span-2"><label className="text-xs font-medium">Recuo Lateral (m)</label><input type="number" onWheel={(e) => e.target.blur()} value={data.recuoLateral} onChange={e => handleConfigChange(`${path}.recuoLateral`, e.target.value)} className="w-full text-sm p-2 border rounded mt-1" /></div>
+                 </div>
+            </div>
+        );
+
+        return (
+            <main className="space-y-6">
+                <div className="bg-white rounded-lg shadow-lg p-6 h-fit">
+                    <h2 className="text-xl font-semibold text-slate-800 mb-4">Dados do Projeto</h2>
+                    <div className="space-y-4">
+                        {/* Configs Globais */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-slate-700">Nome do Projeto</label>
+                          <input type="text" value={config.projectName} onChange={e => handleConfigChange('projectName', e.target.value)} className="w-full p-2 border rounded" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-medium text-slate-700">Comprimento (m)</label>
+                            <input type="number" onWheel={(e) => e.target.blur()} value={config.comprimento} onChange={e => handleConfigChange('comprimento', e.target.value)} className="w-full p-2 border rounded mt-1" />
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-slate-700">Largura (m)</label>
+                            <input type="number" onWheel={(e) => e.target.blur()} value={config.largura} onChange={e => handleConfigChange('largura', e.target.value)} className="w-full p-2 border rounded mt-1" />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-slate-700">Nível de Iluminância (Lux)</label>
+                          <input type="number" onWheel={(e) => e.target.blur()} value={config.lux} onChange={e => handleConfigChange('lux', e.target.value)} className="w-full p-2 border rounded mt-1" />
+                        </div>
+                        <div>
+                           <label className="text-sm font-medium text-slate-700">Observações</label>
+                           <textarea value={config.observacoes} onChange={e => handleConfigChange('observacoes', e.target.value)} className="w-full p-2 border rounded text-sm mt-1" rows="3"></textarea>
+                        </div>
+
+                        <select value={config.layoutType} onChange={e => handleConfigChange('layoutType', e.target.value)} className="w-full p-2 border rounded">
+                            <option value="duploPoste">Postes dos dois lados</option>
+                            <option value="posteCobertura">Poste de um lado e cobertura do outro</option>
+                        </select>
+                        <div className="flex items-center gap-2 p-2 bg-slate-50 rounded border">
+                            <input id="custom-check" type="checkbox" checked={config.isCustom} onChange={e => handleConfigChange('isCustom', e.target.checked)} className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" />
+                            <label htmlFor="custom-check" className="text-sm font-medium">Habilitar Configuração Personalizada</label>
+                        </div>
+
+                        {/* Formulário Padrão */}
+                        {!config.isCustom && (
+                            <div className="p-4 bg-slate-50 rounded-lg border space-y-3">
+                                <h3 className="font-semibold text-lg">Configuração Padrão</h3>
+                                <div className="p-3 bg-white rounded border space-y-2">
+                                    <h4 className="font-semibold text-slate-800 text-sm">Postes</h4>
+                                     {config.layoutType === 'posteCobertura' ? (
+                                        <div>
+                                          <label className="text-xs font-medium">Nº de Postes (no lado)</label>
+                                          <input type="number" onWheel={(e) => e.target.blur()} value={config.padrao.numPostes} onChange={e => handleConfigChange('padrao.numPostes', e.target.value)} className="w-full p-2 border rounded mt-1" />
+                                        </div>
+                                     ) : (
+                                        <>
+                                            <label className="text-xs font-medium">Nº Total de Postes</label>
+                                            <select value={config.padrao.numPostes} onChange={e => handleConfigChange('padrao.numPostes', e.target.value)} className="w-full text-sm p-2 border rounded mt-1">
+                                                <option value="4">4</option><option value="6">6</option><option value="8">8</option><option value="10">10</option>
+                                            </select>
+                                        </>
+                                     )}
+                                    <label className="text-xs font-medium">Recuo de Fundo (m)</label>
+                                    <input type="number" onWheel={(e) => e.target.blur()} value={config.padrao.recuoFundo} onChange={e => handleConfigChange('padrao.recuoFundo', e.target.value)} className="w-full p-2 border rounded mt-1" />
+                                    <label className="text-xs font-medium">Recuo Lateral (m)</label>
+                                    <input type="number" onWheel={(e) => e.target.blur()} value={config.padrao.recuoLateral} onChange={e => handleConfigChange('padrao.recuoLateral', e.target.value)} className="w-full p-2 border rounded mt-1" />
+                                    <p className="text-xs text-slate-500 italic">A distância entre postes será calculada automaticamente.</p>
+                                </div>
+                                {config.layoutType === 'posteCobertura' && <CoberturaFields data={config.padrao.cobertura} path="padrao.cobertura" title="Cobertura"/>}
+                            </div>
+                        )}
+                        
+                        {/* Formulário Personalizado */}
+                        {config.isCustom && (
+                             <div className="p-4 bg-slate-100 rounded-lg border space-y-4">
+                                <h3 className="font-semibold text-lg">Configuração Personalizada</h3>
+                                {config.layoutType === 'duploPoste' ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <DynamicPosteFields side="ladoEsquerdo" data={config.custom.ladoEsquerdo} path="custom.ladoEsquerdo" />
+                                        <DynamicPosteFields side="ladoDireito" data={config.custom.ladoDireito} path="custom.ladoDireito" />
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        <CoberturaFields data={config.custom.cobertura} path="custom.cobertura" title="Dados da Cobertura" />
+                                        <DynamicPosteFields side="ladoDireito" data={config.custom.ladoDireito} path="custom.ladoDireito" />
+                                    </div>
+                                )}
+                             </div>
+                        )}
+                        
+                        <button onClick={generateSketch} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg">
+                            GERAR ESBOÇO
+                        </button>
+                    </div>
+                </div>
+                 <aside className="bg-white rounded-lg shadow-lg p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-xl font-semibold text-slate-800">Croqui</h2>
+                      {sketchGenerated && (
+                        <button onClick={downloadSketch} className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2 text-sm">
+                          <DownloadIcon className="w-4 h-4" />Baixar imagem
+                        </button>
+                      )}
+                    </div>
+                     <div className="border-2 border-slate-200 rounded-lg overflow-hidden bg-slate-100 flex items-center justify-center">
+                        {!sketchGenerated && <div className="text-slate-400 text-center py-20"><LightbulbIcon className="w-12 h-12 mx-auto mb-2 opacity-50"/><p>Preencha os dados e gere o croqui.</p></div>}
+                        <canvas ref={canvasRef} width="800" height="600" className="w-full h-auto" style={{ display: sketchGenerated ? 'block' : 'none' }}/>
+                    </div>
+                 </aside>
+            </main>
+        );
+    }
+
+
+    // ========================================================================
+    // COMPONENTE PRINCIPAL (APP)
+    // ========================================================================
+    function App() {
+      const [activeTool, setActiveTool] = useState('iluminacao');
+
+      const TabButton = ({ tool, label, IconComponent }) => (
+        <button
+          onClick={() => setActiveTool(tool)}
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-medium text-center border-b-2 transition-colors ${
+            activeTool === tool
+              ? 'active-tab'
+              : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+          }`}
+        >
+          <IconComponent className="w-5 h-5" />
+          {label}
+        </button>
+      );
+
+      return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 p-4 sm:p-6 font-sans">
           <div className="max-w-7xl mx-auto">
-            {/* Header */}
-            <header className="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <header className="bg-white rounded-t-lg shadow-lg p-6 mb-6">
               <div className="flex items-center gap-3 mb-2">
                 <FileTextIcon className="w-8 h-8 text-blue-600" />
                 <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">
-                  GalpON
+                  DesenhON
                 </h1>
               </div>
               <p className="text-slate-600">
-                Ferramenta para criação automática de esboços para a equipe de engenharia
+                Ferramenta para criação automática de esboços
               </p>
             </header>
-            
-            {/* Alterado para um grid de 3 colunas em telas grandes (lg) */}
-            <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Formulário (ocupa 1 de 3 colunas) */}
-              <div className="bg-white rounded-lg shadow-lg p-6 lg:col-span-1">
-                <h2 className="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                  <RulerIcon className="w-5 h-5 text-blue-600" />
-                  Dados do Galpão
-                </h2>
-                
-                {error && (
-                    <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 mb-4 rounded-md" role="alert">
-                        <p>{error}</p>
-                    </div>
-                )}
 
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Nome do Projeto
-                    </label>
-                    <input
-                      type="text"
-                      value={projectName}
-                      onChange={(e) => setProjectName(e.target.value)}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                      placeholder="Ex: Galpão Logístico"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Comprimento (metros) *
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={comprimento}
-                      onChange={handleInputChange(setComprimento)}
-                      onWheel={(e) => e.target.blur()}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                      placeholder="Ex: 50.00"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Largura (metros) *
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={largura}
-                      onChange={handleInputChange(setLargura)}
-                      onWheel={(e) => e.target.blur()}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                      placeholder="Ex: 30.00"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Pé Direito (metros) *
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={peDireito}
-                      onChange={handleInputChange(setPeDireito)}
-                      onWheel={(e) => e.target.blur()}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                      placeholder="Ex: 10.00"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-3 flex items-center gap-2">
-                      <ArrowUpDownIcon className="w-4 h-4" />
-                      Sentido do Perfilado (Terças)
-                    </label>
-                    <div className="space-y-2">
-                      <label className="flex items-center gap-2 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
-                        <input
-                          type="radio"
-                          name="perfilado"
-                          value="comprimento"
-                          checked={sentidoPerfilado === 'comprimento'}
-                          onChange={(e) => setSentidoPerfilado(e.target.value)}
-                          className="w-4 h-4 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-slate-700">Paralelo ao Comprimento</span>
-                      </label>
-                      <label className="flex items-center gap-2 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
-                        <input
-                          type="radio"
-                          name="perfilado"
-                          value="largura"
-                          checked={sentidoPerfilado === 'largura'}
-                          onChange={(e) => setSentidoPerfilado(e.target.value)}
-                          className="w-4 h-4 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-slate-700">Paralelo à Largura</span>
-                      </label>
-                      <label className="flex items-center gap-2 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
-                        <input
-                          type="radio"
-                          name="perfilado"
-                          value="nao-informar"
-                          checked={sentidoPerfilado === 'nao-informar'}
-                          onChange={(e) => setSentidoPerfilado(e.target.value)}
-                          className="w-4 h-4 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-slate-700">Não Informar</span>
-                      </label>
-                    </div>
-                  </div>
-
-                  {sentidoPerfilado !== 'nao-informar' && (
-                    <div className="bg-blue-50 p-4 rounded-lg space-y-4 border border-blue-200">
-                      <p className="text-sm font-medium text-slate-700">
-                        Informações adicionais do perfilado (opcional):
-                      </p>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
-                          Número de Perfilados
-                        </label>
-                        <input
-                          type="number"
-                          min="1"
-                          value={numPerfilados}
-                          onChange={(e) => {
-                            setNumPerfilados(e.target.value);
-                            if (e.target.value) setDistanciaPerfilados('');
-                          }}
-                          onWheel={(e) => e.target.blur()}
-                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                          placeholder="Ex: 10"
-                        />
-                      </div>
-
-                      <div className="text-center text-sm text-slate-500 font-medium">
-                        OU
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
-                          Distância entre Perfilados (metros)
-                        </label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={distanciaPerfilados}
-                          onChange={(e) => {
-                            setDistanciaPerfilados(e.target.value);
-                            if (e.target.value) setNumPerfilados('');
-                          }}
-                          onWheel={(e) => e.target.blur()}
-                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                          placeholder="Ex: 2.50"
-                        />
-                      </div>
-
-                      <p className="text-xs text-slate-600 italic">
-                        * Preencha apenas um dos campos acima.
-                      </p>
-                    </div>
-                  )}
-
-                  <button
-                    onClick={generateSketch}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
-                  >
-                    <FileTextIcon className="w-5 h-5" />
-                    GERAR ESBOÇO
-                  </button>
-                </div>
+            <div className="bg-white rounded-b-lg shadow-lg p-6">
+              <div className="border-b border-slate-200 mb-6">
+                <nav className="-mb-px flex space-x-6" aria-label="Tabs">
+                  <TabButton tool="galpao" label="Projeto de Galpão" IconComponent={BuildingIcon} />
+                  <TabButton tool="iluminacao" label="Iluminação Esportiva" IconComponent={LightbulbIcon} />
+                </nav>
               </div>
 
-              {/* Visualização do Croqui (ocupa 2 de 3 colunas) */}
-              <aside className="bg-white rounded-lg shadow-lg p-6 lg:col-span-2">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold text-slate-800">
-                    Pré-visualização
-                  </h2>
-                  {sketchGenerated && (
-                    <button
-                      onClick={downloadSketch}
-                      className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 shadow-md hover:shadow-lg flex items-center gap-2 text-sm"
-                    >
-                      <DownloadIcon className="w-4 h-4" />
-                      Baixar imagem
-                    </button>
-                  )}
-                </div>
-
-                <div className="border-2 border-slate-200 rounded-lg overflow-hidden bg-slate-50 flex items-center justify-center h-full min-h-[624px]">
-                  {!sketchGenerated ? (
-                    <div className="text-center text-slate-400">
-                      <FileTextIcon className="w-16 h-16 mx-auto mb-3 opacity-50" />
-                      <p className="text-lg">Preencha os dados e clique em "GERAR ESBOÇO"</p>
-                    </div>
-                  ) : null}
-                  <canvas
-                    ref={canvasRef}
-                    className="w-full h-auto"
-                    style={{ display: sketchGenerated ? 'block' : 'none' }}
-                  />
-                </div>
-              </aside>
-            </main>
+              {activeTool === 'galpao' && <GalpaoSketchGenerator />}
+              {activeTool === 'iluminacao' && <IluminacaoSketchGenerator />}
+            </div>
           </div>
         </div>
       );
     }
-
-    // --- Ponto de Entrada da Aplicação ---
+    
+    // Ponto de Entrada da Aplicação
     const container = document.getElementById('root');
     const root = ReactDOM.createRoot(container);
-    root.render(<GalpaoSketchGenerator />);
+    root.render(<App />);
   </script>
 
 </body>
