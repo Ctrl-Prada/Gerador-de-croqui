@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DesenhON</title>
+  <title>Ferramenta de Layouts para Engenharia </title>
   
   <!-- 1. Carrega o Tailwind CSS para estilização -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -101,7 +101,7 @@
         const today = new Date().toLocaleDateString('pt-BR');
         const titleText = projectName 
             ? `${projectName} - ${today}`
-            : `Esboço Preliminar de Galpão - ${today}`;
+            : `Croqui Preliminar de Galpão - ${today}`;
         
         ctx.fillStyle = '#1e293b';
         ctx.font = 'bold 20px Arial';
@@ -333,7 +333,7 @@
                 </div>
               )}
               <button onClick={generateSketch} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-                <FileTextIcon className="w-5 h-5" />GERAR ESBOÇO
+                <FileTextIcon className="w-5 h-5" />Gerar Croqui de Galpão
               </button>
             </div>
           </div>
@@ -343,7 +343,7 @@
               <h2 className="text-xl font-semibold text-slate-800">Pré-visualização</h2>
               {sketchGenerated && (
                 <button onClick={downloadSketch} className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 shadow-md hover:shadow-lg flex items-center gap-2 text-sm">
-                  <DownloadIcon className="w-4 h-4" />Baixar imagem
+                  <DownloadIcon className="w-4 h-4" />Baixar PNG
                 </button>
               )}
             </div>
@@ -351,7 +351,7 @@
               {!sketchGenerated ? (
                 <div className="text-center text-slate-400">
                   <FileTextIcon className="w-16 h-16 mx-auto mb-3 opacity-50" />
-                  <p className="text-lg">Preencha os dados e clique em "GERAR ESBOÇO"</p>
+                  <p className="text-lg">Preencha os dados e clique em "Gerar Croqui"</p>
                 </div>
               ) : null}
               <canvas ref={canvasRef} className="w-full h-auto" style={{ display: sketchGenerated ? 'block' : 'none' }} />
@@ -367,24 +367,24 @@
     function IluminacaoSketchGenerator() {
         const [config, setConfig] = useState({
             projectName: '',
-            lux: '',
+            lux: '500',
             observacoes: '',
-            comprimento: '',
-            largura: '',
+            comprimento: '100',
+            largura: '60',
             layoutType: 'duploPoste', // 'duploPoste', 'posteCobertura'
             isCustom: false,
             // Config Padrão
             padrao: {
-                numPostes: '', // TOTAL
-                recuoFundo: '',
-                recuoLateral: '',
-                cobertura: { largura: '', altura: '', comprimento: '', recuoFundo: '', recuoLateral: '' }
+                numPostes: '6', // TOTAL
+                recuoFundo: '10',
+                recuoLateral: '5',
+                cobertura: { largura: '8', altura: '12', comprimento: '100', recuoFundo: '0', recuoLateral: '2' }
             },
             // Config Personalizada
             custom: {
-                ladoEsquerdo: { numPostes: '', recuoFundo: '', recuoLateral: '', distancias: ['', ''] },
-                ladoDireito: { numPostes: '', recuoFundo: '', recuoLateral: '', distancias: ['', ''] },
-                cobertura: { largura: '', altura: '', comprimento: '', recuoFundo: '', recuoLateral: '' }
+                ladoEsquerdo: { numPostes: '3', recuoFundo: '10', recuoLateral: '5', distancias: ['40', '40'] },
+                ladoDireito: { numPostes: '3', recuoFundo: '10', recuoLateral: '5', distancias: ['40', '40'] },
+                cobertura: { largura: '8', altura: '12', comprimento: '100', recuoFundo: '0', recuoLateral: '2' }
             }
         });
         
@@ -458,7 +458,7 @@
                 ctx.fillRect(0, 0, canvasWidth, canvasHeight);
                 
                 const today = new Date().toLocaleDateString('pt-BR');
-                const titleText = config.projectName ? `${config.projectName} - ${today}` : `Esboço de Iluminação - ${today}`;
+                const titleText = config.projectName ? `${config.projectName} - ${today}` : `Croqui de Iluminação - ${today}`;
                 ctx.fillStyle = '#1e293b';
                 ctx.font = 'bold 18px Arial';
                 ctx.textAlign = 'center';
@@ -845,7 +845,7 @@
                       )}
                     </div>
                      <div className="border-2 border-slate-200 rounded-lg overflow-hidden bg-slate-100 flex items-center justify-center">
-                        {!sketchGenerated && <div className="text-slate-400 text-center py-20"><LightbulbIcon className="w-12 h-12 mx-auto mb-2 opacity-50"/><p>Preencha os dados e gere o esboço.</p></div>}
+                        {!sketchGenerated && <div className="text-slate-400 text-center py-20"><LightbulbIcon className="w-12 h-12 mx-auto mb-2 opacity-50"/><p>Preencha os dados e gere o croqui.</p></div>}
                         <canvas ref={canvasRef} width="800" height="600" className="w-full h-auto" style={{ display: sketchGenerated ? 'block' : 'none' }}/>
                     </div>
                  </aside>
