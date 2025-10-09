@@ -366,24 +366,24 @@
     function IluminacaoSketchGenerator() {
         const [config, setConfig] = useState({
             projectName: '',
-            lux: '500',
+            lux: '',
             observacoes: '',
-            comprimento: '100',
-            largura: '60',
+            comprimento: '',
+            largura: '',
             layoutType: 'duploPoste', // 'duploPoste', 'posteCobertura'
             isCustom: false,
             // Config Padrão
             padrao: {
-                numPostes: '6', // TOTAL
-                recuoFundo: '10',
-                recuoLateral: '5',
-                cobertura: { largura: '8', altura: '12', comprimento: '100', recuoFundo: '0', recuoLateral: '2' }
+                numPostes: '', // TOTAL
+                recuoFundo: '',
+                recuoLateral: '',
+                cobertura: { largura: '', altura: '', comprimento: '', recuoFundo: '', recuoLateral: '' }
             },
             // Config Personalizada
             custom: {
-                ladoEsquerdo: { numPostes: '3', recuoFundo: '10', recuoLateral: '5', distancias: ['40', '40'] },
-                ladoDireito: { numPostes: '3', recuoFundo: '10', recuoLateral: '5', distancias: ['40', '40'] },
-                cobertura: { largura: '8', altura: '12', comprimento: '100', recuoFundo: '0', recuoLateral: '2' }
+                ladoEsquerdo: { numPostes: '', recuoFundo: '', recuoLateral: '', distancias: ['', ''] },
+                ladoDireito: { numPostes: '', recuoFundo: '', recuoLateral: '', distancias: ['', ''] },
+                cobertura: { largura: '', altura: '', comprimento: '', recuoFundo: '', recuoLateral: '' }
             }
         });
         
@@ -783,7 +783,7 @@
                 </div>
                  <aside className="bg-white rounded-lg shadow-lg p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-xl font-semibold text-slate-800">Croqui</h2>
+                      <h2 className="text-xl font-semibold text-slate-800">Pré-visualização</h2>
                       {sketchGenerated && (
                         <button onClick={downloadSketch} className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2 text-sm">
                           <DownloadIcon className="w-4 h-4" />Baixar imagem
@@ -859,4 +859,5 @@
 
 </body>
 </html>
+
 
